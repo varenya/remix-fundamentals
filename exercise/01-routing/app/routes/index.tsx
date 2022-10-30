@@ -27,6 +27,11 @@ export default function Index() {
                 Check the README.md file for instructions on how to get this
                 project deployed.
               </p>
+              <div className="mx-auto mt-16 max-w-7xl text-center">
+                <Link to="/posts" className="text-xl text-blue-600 underline">
+                  Blog Posts
+                </Link>
+              </div>
               <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
                 {user ? (
                   <div>
