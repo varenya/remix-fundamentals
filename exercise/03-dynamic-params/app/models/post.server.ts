@@ -1,3 +1,4 @@
+import type { Post } from "@prisma/client";
 import { prisma } from "~/db.server";
 
 export async function getPostListItems() {
@@ -8,3 +9,7 @@ export async function getPostListItems() {
 // that takes a slug and returns a post
 // 💰 use the prisma.post.findUnique function
 // with the "where" option set to { slug }
+
+export async function getPost(slug: Post["slug"]) {
+  return prisma.post.findUnique({ where: { slug } });
+}
