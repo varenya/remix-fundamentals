@@ -1,27 +1,53 @@
-// 🐨 implement the action function here.
-// 1. accept the request object
-// 2. get the formData from the request
-// 3. get the title, slug, and markdown from the formData
-// 4. call the createPost function from your post.model.ts
-// 5. redirect to "/posts/admin".
+import type { ActionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
+import invariant from "tiny-invariant";
+import { createPost } from "~/models/post.server";
+
+export async function action({ request }: ActionArgs) {
+  const blogPostData = await request.formData();
+  const title = blogPostData.get("title");
+  const slug = blogPostData.get("slug");
+  const markdown = blogPostData.get("markdown");
+
+  const errors = {
+    title: title ? null : "Title is mandatory",
+    slug: slug ? null : "Slug is mandatory",
+    markdown: markdown ? null : "markdown is mandatory",
+  };
+
+  if (Object.values(errors).some(Boolean)) {
+    return json(errors);
+  }
+  invariant(typeof title === "string", "Title is not a valid type");
+  invariant(typeof slug === "string", "slug is not a valid type");
+  invariant(typeof markdown === "string", "markdown is not a valid type");
+  await createPost({ title, slug, markdown });
+  return redirect(`/posts/admin`);
+}
 
 const inputClassName = `w-full rounded border border-gray-500 px-2 py-1 text-lg`;
 
 export default function NewPost() {
+  const errors = useActionData<typeof action>();
   return (
-    // 🐨 change this to a <Form /> component from @remix-run/react
-    // 🐨 and add method="post" to the form.
-    <form>
+    <Form method="post">
       <p>
         <label>
           Post Title:{" "}
           <input type="text" name="title" className={inputClassName} />
+          {errors?.title ? (
+            <span className="text-red-500">{errors.title}</span>
+          ) : null}
         </label>
       </p>
       <p>
         <label>
           Post Slug:{" "}
           <input type="text" name="slug" className={inputClassName} />
+          {errors?.slug ? (
+            <span className="text-red-500">{errors.slug}</span>
+          ) : null}
         </label>
       </p>
       <p>
@@ -33,6 +59,9 @@ export default function NewPost() {
           name="markdown"
           className={`${inputClassName} font-mono`}
         />
+        {errors?.markdown ? (
+          <span className="text-red-500">{errors.markdown}</span>
+        ) : null}
       </p>
       <p className="text-right">
         <button
@@ -42,6 +71,6 @@ export default function NewPost() {
           Create Post
         </button>
       </p>
-    </form>
+    </Form>
   );
 }
